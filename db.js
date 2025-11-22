@@ -1,9 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 
 // ----------------------------------------------------
-// IMPORTANT: Use persistent storage on Render
+// USE LOCAL DATABASE FILE FOR RENDER FREE TIER
 // ----------------------------------------------------
-const db = new sqlite3.Database('/var/data/portal.db');
+const db = new sqlite3.Database('./portal.db');
 
 // ----------------------------------------------------
 // INITIAL TABLE CREATION
@@ -45,27 +45,24 @@ db.serialize(() => {
 });
 
 // ----------------------------------------------------
-// AUTO-MIGRATION FOR MISSING COLUMNS
+// AUTO-MIGRATION: ADD MISSING COLUMNS IF NECESSARY
 // ----------------------------------------------------
 function addColumnIfMissing(table, column, type) {
-  db.get(
-    `PRAGMA table_info(${table})`,
-    (err, row) => {
-      db.all(`PRAGMA table_info(${table})`, (err, cols) => {
-        const exists = cols.some(c => c.name === column);
-        if (!exists) {
-          db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`, (err2) => {
-            if (!err2) {
-              console.log(`Added missing column "${column}" to table "${table}"`);
-            }
-          });
+  db.all(`PRAGMA table_info(${table})`, (err, cols) => {
+    if (err) return;
+
+    const exists = cols.some(c => c.name === column);
+    if (!exists) {
+      db.run(
+        `ALTER TABLE ${table} ADD COLUMN ${column} ${type}`,
+        (err2) => {
+          if (!err2) console.log(`Added missing column ${column}`);
         }
-      });
+      );
     }
-  );
+  });
 }
 
-// Add missing fields if needed
 addColumnIfMissing("policies", "cardLast4", "TEXT");
 addColumnIfMissing("policies", "holder_name", "TEXT");
 addColumnIfMissing("policies", "licence_number", "TEXT");
