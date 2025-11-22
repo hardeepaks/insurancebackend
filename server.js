@@ -5,7 +5,7 @@ const cors = require('cors');
 const db = require('./db');
 
 // ----------------------------------------------------
-// CORS (Allow Netlify Frontend)
+// CORS (Netlify + Local)
 // ----------------------------------------------------
 app.use(cors({
   origin: "*",
@@ -15,10 +15,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// ----------------------------------------------------
-// LOG DATABASE LOCATION (important for Render)
-// ----------------------------------------------------
-console.log("📦 Using SQLite DB at /var/data/portal.db");
+// Log local DB usage
+console.log("📦 Using local SQLite DB: ./portal.db");
 
 // ----------------------------------------------------
 // ROUTES
@@ -28,11 +26,8 @@ app.use('/api/policies', require('./routes/policies'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/vehicle', require('./routes/vehicle'));
 
-// ----------------------------------------------------
-// ROOT ENDPOINT
-// ----------------------------------------------------
 app.get('/', (req, res) => {
-  res.send('Backend running — Pride Insurance API');
+  res.send("Pride Insurance Backend Running.");
 });
 
 // ----------------------------------------------------
@@ -40,5 +35,5 @@ app.get('/', (req, res) => {
 // ----------------------------------------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Pride Insurance backend running on port ${PORT}`);
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
